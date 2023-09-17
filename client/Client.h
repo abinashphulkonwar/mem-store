@@ -17,11 +17,15 @@ private:
     HTable *s;
 
 public:
-    client(/* args */);
+    client(bool isEnable);
+    void API_Client();
     ~client();
+    void mainHandler(string command, CommandsStruch *CommandStruch);
     bool Validate(CommandsStruch *CommandStruch);
     void CommandHandler(CommandsStruch *CommandStruch);
-    int data = 10;
+    string S_Tolower_Case(string val);
+    string S_Toupper_Case(string val);
+    void HelpHandler();
 };
 
 #endif
