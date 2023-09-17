@@ -7,7 +7,9 @@
         "istream": "cpp",
         "string": "cpp",
         "xstring": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "utility": "cpp",
+        "tuple": "cpp"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }

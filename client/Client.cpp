@@ -3,8 +3,10 @@
 #include <cstring>
 #include "Client.h"
 
-const string SET_COMMAND = "SET";
-const string GET_COMMAND = "GET";
+const string SET_COMMAND_S = "SET";
+const string GET_COMMAND_S = "GET";
+const string SET_COMMAND_N = "NSET";
+const string GET_COMMAND_N = "NGET";
 
 client::client(bool isEnable)
 {
@@ -91,13 +93,9 @@ void client::mainHandler(string command, CommandsStruch *CommandStruch)
 
 void client::CommandHandler(CommandsStruch *CommandStruch)
 {
+    string command = CommandStruch->Command;
 
-    if (CommandStruch->Command == SET_COMMAND)
-    {
-        this->s->SetText(CommandStruch->Key, CommandStruch->Value);
-        cout << "Recored Added status: 'OK'" << endl;
-    }
-    else if (CommandStruch->Command == GET_COMMAND)
+    if (command == GET_COMMAND_S)
     {
         string data = this->s->GetText(CommandStruch->Key);
         if (data != "")
@@ -110,29 +108,70 @@ void client::CommandHandler(CommandsStruch *CommandStruch)
         {
             cout << "Recored not found \nstatus: 'NULL'" << endl;
         }
+        return;
     }
-    else
+
+    if (command == GET_COMMAND_N)
     {
-        cout << "Enable to Process \nstatus: 'NOT_OK'" << endl;
+        pair<bool, int> data = this->s->GetNumber(CommandStruch->Key);
+        if (data.first == true)
+        {
+            cout << "Recored: " << data.second << "\n"
+                 << "status: 'OK'"
+                 << endl;
+        }
+        else
+        {
+            cout << "Recored not found \nstatus: 'NULL'" << endl;
+        }
+        return;
     }
+    if (command == SET_COMMAND_N)
+    {
+        tuple<bool, int, string> res = this->s->SetNumber(CommandStruch->Key, CommandStruch->Value);
+
+        if (get<0>(res) == true)
+        {
+
+            cout << "Recored: "
+                 << get<1>(res)
+                 << "\nstatus: 'OK'"
+                 << endl;
+        }
+        else
+        {
+            cout << "Error: " << get<2>(res) << "\nstatus: 'NULL'" << endl;
+        }
+        return;
+    }
+
+    if (command == SET_COMMAND_S)
+    {
+        this->s->SetText(CommandStruch->Key, CommandStruch->Value);
+        cout << "Recored Added status: 'OK'" << endl;
+        return;
+    }
+
+    cout << "Enable to Process \nstatus: 'NOT_OK'" << endl;
+    return;
 }
 
 bool client::Validate(CommandsStruch *CommandStruch)
 {
-
-    if (CommandStruch->Command != SET_COMMAND &&
-        CommandStruch->Command != GET_COMMAND)
+    string command = CommandStruch->Command;
+    if (command != SET_COMMAND_S &&
+        command != GET_COMMAND_S && command != SET_COMMAND_N && command != GET_COMMAND_N)
     {
-        cout << "error: Command need to be SET or GET" << endl;
+        cout << "error: Command need to be SET or GET or NSET or NGET" << endl;
         return false;
     }
 
-    if (CommandStruch->Command == SET_COMMAND && (CommandStruch->Key == "" || CommandStruch->Value == ""))
+    if ((command == SET_COMMAND_S || command == SET_COMMAND_N) && (command == "" || command == ""))
     {
-        cout << "error: Command SET need both key and value [SET key1 value1]" << endl;
+        cout << "error: Command SET or NSET need both key and value [SET key1 value1]" << endl;
         return false;
     }
-    if (CommandStruch->Command == GET_COMMAND && CommandStruch->Key == "")
+    if ((command == GET_COMMAND_S || command == GET_COMMAND_N) && command == "")
     {
         cout << "error: Command GET need key of the Recored [GET key1]" << endl;
         return false;
