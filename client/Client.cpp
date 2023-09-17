@@ -202,7 +202,8 @@ void client::HelpHandler()
 {
     cout << "Available Commands: \n"
          << endl;
-
+    cout << "STRINGS: \n"
+         << endl;
     // Document the SET command
     cout << "SET: Set a value associated with a key." << endl;
     cout << "Usage: SET <Key> <Value>" << endl;
@@ -217,7 +218,22 @@ void client::HelpHandler()
     cout << "Description: Use the GET command to retrieve the data associated with a specific key.\n"
          << endl;
 
-    // Add more commands and descriptions as needed
+    cout << "NUMBERS: \n"
+         << endl;
+
+    // Document the SET command
+    cout << "NSET: Set a value associated with a key." << endl;
+    cout << "Usage: NSET <Key> <Value>" << endl;
+    cout << "Example: NSET Key1 892" << endl;
+    cout << "Description: Use the NSET command to store a INT value with a specific key.\n"
+         << endl;
+
+    // Document the GET command
+    cout << "NGET: Retrieve data associated with a key." << endl;
+    cout << "Usage: NGET <Key>" << endl;
+    cout << "Example: NGET Key1" << endl;
+    cout << "Description: Use the NGET command to retrieve the data associated with a specific key.\n"
+         << endl;
 
     cout << "Note: Key should not contain spaces." << endl;
 }
