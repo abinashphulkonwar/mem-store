@@ -2,17 +2,25 @@
 #include <string>
 #include <sstream>
 #include <cstring>
-
 using namespace std;
 
 int main()
 {
-    string val = "Engineering Discipline.";
+    const char *input = "dd123"; // Input string
+    int intValue = stoi(input);
 
-    for (int i = 0; i < val.length(); i++)
+    try
     {
-        val[i] = toupper(val[i]);
+        intValue = stoi(input);
+        cout << "The converted integer value: " << intValue << endl;
     }
-    cout << val << endl;
+    catch (const std::invalid_argument &e)
+    {
+        cerr << "Invalid argument: " << e.what() << endl;
+    }
+    catch (const std::out_of_range &e)
+    {
+        cerr << "Out of range: " << e.what() << endl;
+    }
     return 1;
 }
