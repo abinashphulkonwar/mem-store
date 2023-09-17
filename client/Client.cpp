@@ -28,16 +28,16 @@ client::client(bool isEnable)
         CommandStruch.Value = "";
         cout << "> ";
         getline(cin, command);
+        if (command == "exit")
+        {
+            return;
+        }
         this->mainHandler(command, &CommandStruch);
     }
 }
 
 void client::mainHandler(string command, CommandsStruch *CommandStruch)
 {
-    if (command == "exit")
-    {
-        return;
-    }
 
     if (this->S_Tolower_Case(command) == "help")
     {
@@ -80,10 +80,6 @@ void client::mainHandler(string command, CommandsStruch *CommandStruch)
             CommandStruch->Value = CommandStruch->Value + " " + token;
         }
         count++;
-        if (token == "exit")
-        {
-            return;
-        }
     }
     bool isValid = this->Validate(CommandStruch);
     if (isValid == false)
@@ -165,9 +161,26 @@ string client::S_Toupper_Case(string val)
 
 void client::HelpHandler()
 {
-    cout << "Commands: " << endl;
-    cout << "SET: use to set a value (Type of STRING) with a Key. \n [SET Key1 value1] " << endl;
-    cout << "GET: use to query any data associated with a key. \n [GET Key1] " << endl;
+    cout << "Available Commands: \n"
+         << endl;
+
+    // Document the SET command
+    cout << "SET: Set a value associated with a key." << endl;
+    cout << "Usage: SET <Key> <Value>" << endl;
+    cout << "Example: SET Key1 Value1" << endl;
+    cout << "Description: Use the SET command to store a STRING value with a specific key.\n"
+         << endl;
+
+    // Document the GET command
+    cout << "GET: Retrieve data associated with a key." << endl;
+    cout << "Usage: GET <Key>" << endl;
+    cout << "Example: GET Key1" << endl;
+    cout << "Description: Use the GET command to retrieve the data associated with a specific key.\n"
+         << endl;
+
+    // Add more commands and descriptions as needed
+
+    cout << "Note: Key should not contain spaces." << endl;
 }
 
 void client::API_Client()
