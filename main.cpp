@@ -4,7 +4,8 @@
 
 int main()
 {
-    client *new_client = new client();
+    client *new_client = new client(true);
+
     delete new_client;
     return 1;
 }
