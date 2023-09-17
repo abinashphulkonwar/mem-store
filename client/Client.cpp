@@ -1,14 +1,21 @@
 #include <string>
 #include <sstream>
+#include <cstring>
 #include "Client.h"
 
 const string SET_COMMAND = "SET";
 const string GET_COMMAND = "GET";
 
-client::client(/* args */)
+client::client(bool isEnable)
 {
     HTable *hTable = new HTable();
     this->s = hTable;
+
+    if (isEnable != true)
+    {
+        return;
+    }
+
     string command;
 
     CommandsStruch CommandStruch;
@@ -21,55 +28,69 @@ client::client(/* args */)
         CommandStruch.Value = "";
         cout << "> ";
         getline(cin, command);
-        if (command == "exit")
-        {
-            break;
-        }
-
-        //   cout << command << endl;
-
-        size_t pos = 0;
-
-        command = command + " ";
-        int count = 0;
-
-        while ((pos = command.find(' ')) != string::npos)
-        {
-
-            string token = command.substr(0, pos);
-            //   cout << "Token: " << token << endl;
-            command.erase(0, pos + 1);
-
-            if (token == "")
-            {
-                continue;
-            }
-            if (count == 0)
-            {
-                CommandStruch.Command = token;
-            }
-            if (count == 1)
-            {
-                CommandStruch.Key = token;
-            }
-            if (count == 2)
-            {
-                CommandStruch.Value = token + " " + command;
-            }
-            count++;
-            if (token == "exit")
-            {
-                return;
-            }
-        }
-        cout << CommandStruch.Command << " " << CommandStruch.Key << " " << CommandStruch.Value << endl;
-        bool isValid = this->Validate(&CommandStruch);
-        if (isValid == false)
-        {
-            continue;
-        }
-        this->CommandHandler(&CommandStruch);
+        this->mainHandler(command, &CommandStruch);
     }
+}
+
+void client::mainHandler(string command, CommandsStruch *CommandStruch)
+{
+    if (command == "exit")
+    {
+        return;
+    }
+
+    if (this->S_Tolower_Case(command) == "help")
+    {
+        this->HelpHandler();
+        return;
+    }
+
+    //   cout << command << endl;
+
+    size_t pos = 0;
+
+    command = command + " ";
+    int count = 0;
+
+    while ((pos = command.find(' ')) != string::npos)
+    {
+
+        string token = command.substr(0, pos);
+        //   cout << "Token: " << token << endl;
+        command.erase(0, pos + 1);
+
+        if (token == "")
+        {
+            return;
+        }
+        if (count == 0)
+        {
+            CommandStruch->Command = this->S_Toupper_Case(token);
+        }
+        if (count == 1)
+        {
+            CommandStruch->Key = token;
+        }
+        if (count == 2)
+        {
+            CommandStruch->Value = token;
+        }
+        if (count >= 3)
+        {
+            CommandStruch->Value = CommandStruch->Value + " " + token;
+        }
+        count++;
+        if (token == "exit")
+        {
+            return;
+        }
+    }
+    bool isValid = this->Validate(CommandStruch);
+    if (isValid == false)
+    {
+        return;
+    }
+    this->CommandHandler(CommandStruch);
 }
 
 void client::CommandHandler(CommandsStruch *CommandStruch)
@@ -91,12 +112,12 @@ void client::CommandHandler(CommandsStruch *CommandStruch)
         }
         else
         {
-            cout << "Recored not, status: 'OK'" << endl;
+            cout << "Recored not found \nstatus: 'NULL'" << endl;
         }
     }
     else
     {
-        cout << "Enable to Process status: 'NOT_OK'" << endl;
+        cout << "Enable to Process \nstatus: 'NOT_OK'" << endl;
     }
 }
 
@@ -121,6 +142,36 @@ bool client::Validate(CommandsStruch *CommandStruch)
         return false;
     }
     return true;
+}
+
+string client::S_Tolower_Case(string val)
+{
+
+    for (int i = 0; i < val.length(); i++)
+    {
+        val[i] = tolower(val[i]);
+    }
+    return val;
+}
+string client::S_Toupper_Case(string val)
+{
+
+    for (int i = 0; i < val.length(); i++)
+    {
+        val[i] = toupper(val[i]);
+    }
+    return val;
+}
+
+void client::HelpHandler()
+{
+    cout << "Commands: " << endl;
+    cout << "SET: use to set a value (Type of STRING) with a Key. \n [SET Key1 value1] " << endl;
+    cout << "GET: use to query any data associated with a key. \n [GET Key1] " << endl;
+}
+
+void client::API_Client()
+{
 }
 
 client::~client()
