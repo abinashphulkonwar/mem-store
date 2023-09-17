@@ -20,6 +20,8 @@ private:
 public:
     HTable(/* args */);
     void SetText(string Key, string value);
+    tuple<bool, int, string> SetNumber(string Key, string value);
+    pair<bool, int> GetNumber(string Key);
     string GetText(string Key);
     ~HTable();
 };
