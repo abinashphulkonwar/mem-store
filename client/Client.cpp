@@ -3,10 +3,17 @@
 #include <cstring>
 #include "Client.h"
 
+const string GET_COMMAND = "GET";
 const string SET_COMMAND_S = "SET";
-const string GET_COMMAND_S = "GET";
+const string GET_COMMAND_S = "SGET";
 const string SET_COMMAND_N = "NSET";
 const string GET_COMMAND_N = "NGET";
+const string SET_COMMAND_L = "LSET";
+const string GET_COMMAND_L = "LGET";
+const string LPUSH_COMMAND = "LPUSH";
+const string RPUSH_COMMAND = "RPUSH";
+const string LREMOVE_COMMAND = "LREMOVE";
+const string RREMOVE_COMMAND = "RREMOVE";
 
 client::client(bool isEnable)
 {
@@ -61,10 +68,11 @@ void client::mainHandler(string command, CommandsStruch *CommandStruch)
         //   cout << "Token: " << token << endl;
         command.erase(0, pos + 1);
 
-        if (token == "")
+        if (count <= 1 && token == "")
         {
-            return;
+            continue;
         }
+
         if (count == 0)
         {
             CommandStruch->Command = this->S_Toupper_Case(token);
@@ -83,6 +91,15 @@ void client::mainHandler(string command, CommandsStruch *CommandStruch)
         }
         count++;
     }
+    cout << CommandStruch->Value.length() << endl;
+    if (CommandStruch->Value.length() > 0)
+    {
+        CommandStruch->Value.erase(0, CommandStruch->Value.find_first_not_of(" "));
+    }
+    if (CommandStruch->Value.length() > 0)
+    {
+        CommandStruch->Value.erase(CommandStruch->Value.find_last_not_of(" ") + 1);
+    }
     bool isValid = this->Validate(CommandStruch);
     if (isValid == false)
     {
@@ -94,6 +111,32 @@ void client::mainHandler(string command, CommandsStruch *CommandStruch)
 void client::CommandHandler(CommandsStruch *CommandStruch)
 {
     string command = CommandStruch->Command;
+
+    if (command == GET_COMMAND)
+    {
+        pair<int, variant<int, string>> data = this->s->GetHandler(CommandStruch->Key);
+
+        if (data.first == STATUS_FOUND_CODE_T)
+        {
+            cout << "Recored: " << get<string>(data.second) << "\n"
+                 << "status: 'OK'"
+                 << endl;
+            return;
+        }
+        if (data.first == STATUS_FOUND_CODE_N)
+        {
+            cout << "Recored: " << get<int>(data.second) << "\n"
+                 << "status: 'OK'"
+                 << endl;
+            return;
+        }
+
+        if (data.first == STATUS_NOT_FOUND_CODE || data.first == STATUS_ERROR_CODE)
+        {
+            cout << "Recored not found \nstatus: 'NULL'" << endl;
+            return;
+        }
+    }
 
     if (command == GET_COMMAND_S)
     {
@@ -159,19 +202,19 @@ void client::CommandHandler(CommandsStruch *CommandStruch)
 bool client::Validate(CommandsStruch *CommandStruch)
 {
     string command = CommandStruch->Command;
-    if (command != SET_COMMAND_S &&
+    if (command != GET_COMMAND && command != SET_COMMAND_S &&
         command != GET_COMMAND_S && command != SET_COMMAND_N && command != GET_COMMAND_N)
     {
         cout << "error: Command need to be SET or GET or NSET or NGET" << endl;
         return false;
     }
 
-    if ((command == SET_COMMAND_S || command == SET_COMMAND_N) && (command == "" || command == ""))
+    if ((command == SET_COMMAND_S || command == SET_COMMAND_N) && (CommandStruch->Key == "" || CommandStruch->Value == ""))
     {
         cout << "error: Command SET or NSET need both key and value [SET key1 value1]" << endl;
         return false;
     }
-    if ((command == GET_COMMAND_S || command == GET_COMMAND_N) && command == "")
+    if ((command == GET_COMMAND || command == GET_COMMAND_S || command == GET_COMMAND_N) && CommandStruch->Key == "")
     {
         cout << "error: Command GET need key of the Recored [GET key1]" << endl;
         return false;
