@@ -12,7 +12,7 @@ HTable::~HTable()
 
 void HTable::SetText(string key, string value)
 {
-
+    this->CleareKey(key);
     Hash_Table_Records record;
     record.text = value;
     record.number = 0;
@@ -21,6 +21,7 @@ void HTable::SetText(string key, string value)
 }
 tuple<bool, int, string> HTable::SetNumber(string key, string value)
 {
+    this->CleareKey(key);
 
     int num;
     try
@@ -80,4 +81,50 @@ pair<bool, int> HTable::GetNumber(string key)
     }
 
     return pair(false, 0);
+}
+
+pair<int, variant<int, string>> HTable::GetHandler(string key)
+{
+    variant<int, string> res;
+    auto it = this->HMap.find(key);
+    if (it != this->HMap.end())
+    {
+        int status = 0;
+        Hash_Table_Records val = it->second;
+        if (val.type == 0)
+        {
+            res = val.text;
+            status = STATUS_FOUND_CODE_T;
+        }
+        else if (val.type == 1)
+        {
+            res = val.number;
+            status = STATUS_FOUND_CODE_N;
+        }
+
+        return pair(status, res);
+    }
+    res = 0;
+    return pair(STATUS_NOT_FOUND_CODE, res);
+}
+
+void HTable::CleareKey(string Key)
+{
+    auto it = this->HMap.find(Key);
+    if (it != this->HMap.end())
+    {
+        if (it->second.type == 2)
+        {
+            delete it->second.List;
+        }
+
+        if (it->second.type == 0)
+        {
+            it->second.text = "";
+        }
+        if (it->second.type == 1)
+        {
+            it->second.number = 0;
+        }
+    }
 }
