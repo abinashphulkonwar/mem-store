@@ -10,7 +10,8 @@
         "ostream": "cpp",
         "utility": "cpp",
         "tuple": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "xhash": "cpp",
+        "vector": "cpp"
     },
-    "C_Cpp.errorSquiggles": "disabled"
 }
