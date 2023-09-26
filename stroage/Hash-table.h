@@ -30,6 +30,10 @@ public:
     string GetText(string Key);
     void CleareKey(string key);
     ~HTable();
+    bool SetListKey(string key);
+    pair<int, string> GetListLR(string key, bool isLeft);
+    bool PushListLR(string key, string value, bool isLeft);
+    bool RemoveListLR(string key, bool isLeft);
 };
 
 #endif
