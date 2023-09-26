@@ -10,6 +10,7 @@ const string SET_COMMAND_N = "NSET";
 const string GET_COMMAND_N = "NGET";
 const string SET_COMMAND_L = "LSET";
 const string GET_COMMAND_L = "LGET";
+const string GET_COMMAND_R = "RGET";
 const string LPUSH_COMMAND = "LPUSH";
 const string RPUSH_COMMAND = "RPUSH";
 const string LREMOVE_COMMAND = "LREMOVE";
@@ -94,11 +95,11 @@ void client::mainHandler(string command, CommandsStruch *CommandStruch)
     cout << CommandStruch->Value.length() << endl;
     if (CommandStruch->Value.length() > 0)
     {
-        CommandStruch->Value.erase(0, CommandStruch->Value.find_first_not_of(" "));
+        CommandStruch->Value.erase(0, CommandStruch->Value.find_first_not_of(" \t\r\n"));
     }
     if (CommandStruch->Value.length() > 0)
     {
-        CommandStruch->Value.erase(CommandStruch->Value.find_last_not_of(" ") + 1);
+        CommandStruch->Value.erase(CommandStruch->Value.find_last_not_of(" \t\r\n") + 1);
     }
     bool isValid = this->Validate(CommandStruch);
     if (isValid == false)
@@ -195,30 +196,100 @@ void client::CommandHandler(CommandsStruch *CommandStruch)
         return;
     }
 
+    if (command == SET_COMMAND_L)
+    {
+        this->s->SetListKey(CommandStruch->Key);
+        cout << "Recored Added status: 'OK'" << endl;
+        return;
+    }
+
+    if (command == GET_COMMAND_L || command == GET_COMMAND_R)
+    {
+        bool isLeft = false;
+        if (command == GET_COMMAND_L)
+            isLeft = true;
+        pair<int, std::string> res = this->s->GetListLR(CommandStruch->Key, isLeft);
+        if (res.first == STATUS_FOUND_CODE_L)
+        {
+            cout << "Recored Added status: 'OK'\nvalue: " << res.second << endl;
+            return;
+        }
+        else
+        {
+            cout << "Recored not Added status: 'NOT_OF'\nvalue: " << res.second << endl;
+            return;
+        }
+    }
+    if (command == LPUSH_COMMAND || command == RPUSH_COMMAND)
+    {
+        bool isLeft = false;
+        if (command == LPUSH_COMMAND)
+            isLeft = true;
+        bool res = this->s->PushListLR(CommandStruch->Key, CommandStruch->Value, isLeft);
+        if (res == true)
+        {
+            cout << "Recored Added status: 'OK'" << endl;
+            return;
+        }
+        else
+        {
+            cout << "Recored not Added status: 'NOT_OF'" << endl;
+            return;
+        }
+    }
+
+    if (command == LREMOVE_COMMAND || command == RREMOVE_COMMAND)
+    {
+        bool isLeft = false;
+        if (command == LPUSH_COMMAND)
+            isLeft = true;
+
+        bool res = this->s->RemoveListLR(CommandStruch->Key, isLeft);
+        if (res == true)
+        {
+            cout << "Recored Removed status: 'OK' " << endl;
+            return;
+        }
+        else
+        {
+            cout << "Recored not removed status: 'NOT_OF'" << endl;
+            return;
+        }
+    }
+
     cout << "Enable to Process \nstatus: 'NOT_OK'" << endl;
     return;
 }
 
 bool client::Validate(CommandsStruch *CommandStruch)
 {
+
     string command = CommandStruch->Command;
     if (command != GET_COMMAND && command != SET_COMMAND_S &&
-        command != GET_COMMAND_S && command != SET_COMMAND_N && command != GET_COMMAND_N)
+        command != GET_COMMAND_S && command != SET_COMMAND_N && command != GET_COMMAND_N && command != SET_COMMAND_L && command != GET_COMMAND_L && command != GET_COMMAND_R && command != LPUSH_COMMAND && command != RPUSH_COMMAND && command != LREMOVE_COMMAND && command != RREMOVE_COMMAND)
     {
-        cout << "error: Command need to be SET or GET or NSET or NGET" << endl;
+        cout << "error: Command need to be SET or GET or NSET or NGET or LIST commands" << endl;
         return false;
     }
 
-    if ((command == SET_COMMAND_S || command == SET_COMMAND_N) && (CommandStruch->Key == "" || CommandStruch->Value == ""))
+    if ((command == SET_COMMAND_S || command == SET_COMMAND_N || command == LPUSH_COMMAND || command == RPUSH_COMMAND) && (CommandStruch->Key == "" || CommandStruch->Value == ""))
     {
         cout << "error: Command SET or NSET need both key and value [SET key1 value1]" << endl;
         return false;
     }
-    if ((command == GET_COMMAND || command == GET_COMMAND_S || command == GET_COMMAND_N) && CommandStruch->Key == "")
+
+    if ((command == SET_COMMAND_L || command == LREMOVE_COMMAND || command == RREMOVE_COMMAND) && CommandStruch->Key == "")
+    {
+        cout << "error: Command LSET need key [SET key1]" << endl;
+        return false;
+    }
+
+    if ((command == GET_COMMAND || command == GET_COMMAND_S || command == GET_COMMAND_N || command == GET_COMMAND_L || command == GET_COMMAND_R) && CommandStruch->Key == "")
     {
         cout << "error: Command GET need key of the Recored [GET key1]" << endl;
         return false;
     }
+
     return true;
 }
 
