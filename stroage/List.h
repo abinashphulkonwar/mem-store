@@ -5,13 +5,16 @@
 
 using namespace std;
 
+const string NOT_FOUND_LIST = "NOT_FOUND_LIST";
+const string FOUND_LIST = "FOUND_LIST";
+
 class Node
 {
 public:
     Node *next;
     Node *prev;
-    int value;
-    Node(int val);
+    string value;
+    Node(string val);
 };
 
 class LinkedList
@@ -24,18 +27,18 @@ public:
     int length;
     LinkedList(/* args */);
     ~LinkedList();
-    void rPush(int val);
-    void lPush(int val);
+    void rPush(string val);
+    void lPush(string val);
     void rRemove();
     void lRemove();
-    pair<int, int> rGet();
-    pair<int, int> lGet();
+    pair<string, string> rGet();
+    pair<string, string> lGet();
     // pair<int, int> getIndex(int idx);
-    int insertAt(int idx, int value);
-    int removeAt(int idx);
+    bool insertAt(int idx, string value);
+    bool removeAt(int idx);
     void travers(int val);
-    vector<int> lMap(int length);
-    vector<int> rMap(int length);
+    vector<string> lMap(int length);
+    vector<string> rMap(int length);
 };
 
 #endif
