@@ -1,6 +1,7 @@
 #include <string>
 #include <sstream>
 #include "Hash-table.h"
+#include "List.h"
 
 HTable::HTable()
 {
@@ -127,4 +128,106 @@ void HTable::CleareKey(string Key)
             it->second.number = 0;
         }
     }
+}
+
+bool HTable::SetListKey(string key)
+{
+    this->CleareKey(key);
+    Hash_Table_Records record;
+    record.type = 2;
+    LinkedList *list = new LinkedList();
+    record.List = list;
+
+    this->HMap[key] = record;
+    cout << this->HMap[key].type << key << "data" << endl;
+    return true;
+}
+
+pair<int, string> HTable::GetListLR(string key, bool isLeft)
+{
+    auto it = this->HMap.find(key);
+    if (it != this->HMap.end())
+    {
+        if (it->second.type == 2)
+        {
+            if (isLeft == true)
+            {
+                pair<std::string, std::string> res = it->second.List->lGet();
+
+                return make_pair(STATUS_FOUND_CODE_L, res.second);
+            }
+            else
+            {
+                pair<std::string, std::string> res = it->second.List->rGet();
+                return make_pair(STATUS_FOUND_CODE_L, res.second);
+            }
+        }
+        else
+        {
+            cout << "list not set" << endl;
+        }
+    }
+
+    return make_pair(STATUS_NOT_FOUND_CODE, "");
+}
+bool HTable::RemoveListLR(string key, bool isLeft)
+{
+    auto it = this->HMap.find(key);
+    if (it != this->HMap.end())
+    {
+        if (it->second.type == 2)
+        {
+            if (isLeft == true)
+            {
+                it->second.List->lRemove();
+                return true;
+            }
+            else
+            {
+
+                it->second.List->rRemove();
+
+                return true;
+            }
+        }
+        else
+        {
+            cout << "list not set" << endl;
+        }
+    }
+
+    return false;
+}
+
+bool HTable::PushListLR(string key, string value, bool isLeft)
+
+{
+    cout
+        << "push list start" << isLeft << key << value << endl;
+    auto it = this->HMap.find(key);
+    if (it != this->HMap.end())
+    {
+        cout << "list found" << endl;
+        if (it->second.type == 2)
+        {
+            cout << "push list" << isLeft << key << value << endl;
+            if (isLeft == true)
+            {
+                it->second.List->lPush(value);
+
+                return true;
+            }
+            else
+            {
+                it->second.List->rPush(value);
+                return true;
+            }
+        }
+        else
+        {
+            cout << "list not set" << endl;
+        }
+    }
+
+    return false;
 }
