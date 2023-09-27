@@ -60,6 +60,7 @@ void client::mainHandler(string command, CommandsStruch *CommandStruch)
     size_t pos = 0;
 
     command = command + " ";
+
     int count = 0;
 
     while ((pos = command.find(' ')) != string::npos)
